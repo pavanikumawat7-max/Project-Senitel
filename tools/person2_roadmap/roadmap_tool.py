@@ -1,6 +1,7 @@
 def tool(func):
     return func
 
+
 @tool
 def generate_roadmap(analysis: dict) -> dict:
     summary = analysis.get("summary", "")
@@ -59,3 +60,36 @@ def generate_roadmap(analysis: dict) -> dict:
         "timelines": timelines,
         "safe_integration_plan": safe_integration_plan
     }
+
+
+def roadmap_to_markdown(roadmap: dict) -> str:
+    md = ""
+
+    md += "## 📌 Simplified Idea\n"
+    md += f"{roadmap['simplified_idea']}\n\n"
+
+    md += "## 📊 Required Datasets\n"
+    for ds in roadmap["required_datasets"]:
+        md += f"- {ds}\n"
+    md += "\n"
+
+    md += "## ⚙️ Dependencies\n"
+    for dep in roadmap["required_dependencies"]:
+        md += f"- {dep}\n"
+    md += "\n"
+
+    md += "## 🚀 Milestones\n"
+    for i, m in enumerate(roadmap["milestones"], 1):
+        md += f"{i}. {m}\n"
+    md += "\n"
+
+    md += "## ⏳ Timelines\n"
+    for k, v in roadmap["timelines"].items():
+        md += f"\n### {k.replace('_', ' ').title()}\n"
+        for m, d in v["milestone_days"].items():
+            md += f"- {m}: {d} days\n"
+
+    md += "\n## 🔒 Safe Integration Plan\n"
+    md += roadmap["safe_integration_plan"]
+
+    return md
