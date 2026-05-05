@@ -1,4 +1,5 @@
-from openclaw import tool
+def tool(func):
+    return func
 
 @tool
 def generate_roadmap(analysis: dict) -> dict:
