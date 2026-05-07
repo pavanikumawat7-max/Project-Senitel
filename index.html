@@ -1,1 +1,1154 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project Sentinel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f5f2ec;
+    --surface: #ede9e0;
+    --surface-2: #e4dfd4;
+    --ink: #1a1714;
+    --ink-2: #4a4540;
+    --ink-3: #8a837a;
+    --accent: #c84b2f;
+    --accent-dim: rgba(200,75,47,0.1);
+    --accent-mid: rgba(200,75,47,0.22);
+    --green: #2a7a4f;
+    --green-dim: rgba(42,122,79,0.1);
+    --green-border: rgba(42,122,79,0.3);
+    --border: rgba(26,23,20,0.1);
+    --border-2: rgba(26,23,20,0.2);
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Fraunces', Georgia, serif;
+    --r: 4px;
+    --r-lg: 8px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* Topbar */
+  .topbar {
+    border-bottom: 1px solid var(--border-2);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .logo-mark::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .logo-text {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .logo-text em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .topbar-meta {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ink-3);
+    border: 1px solid var(--border-2);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ink-3);
+  }
+
+  .status-dot.live { background: var(--green); }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* Sidebar */
+  .sidebar {
+    border-right: 1px solid var(--border-2);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .input-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-label {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+  }
+
+  .url-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--r);
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .url-input:focus { border-color: var(--accent); }
+  .url-input::placeholder { color: var(--ink-3); }
+  .url-input.error { border-color: var(--accent); background: var(--accent-dim); }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+
+  .toggle-row input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .btn-analyze {
+    width: 100%;
+    padding: 11px;
+    background: var(--ink);
+    border: none;
+    border-radius: var(--r);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+    text-transform: uppercase;
+  }
+
+  .btn-analyze:hover:not(:disabled) { background: #2a2420; }
+  .btn-analyze:active:not(:disabled) { transform: scale(0.98); }
+  .btn-analyze:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .btn-demo {
+    width: 100%;
+    padding: 9px;
+    background: transparent;
+    border: 1px dashed var(--border-2);
+    border-radius: var(--r);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    letter-spacing: 0.04em;
+  }
+
+  .btn-demo:hover { border-color: var(--accent); color: var(--accent); }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(245,242,236,0.3);
+    border-top-color: var(--bg);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .steps {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 0 2px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ink-3);
+    transition: color 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  .step.active { color: var(--accent); }
+  .step.done { color: var(--ink-2); }
+
+  .step-tick {
+    width: 14px;
+    height: 14px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 8px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .step.done .step-tick { background: var(--ink-2); border-color: var(--ink-2); color: var(--bg); }
+  .step.active .step-tick { border-color: var(--accent); }
+
+  .endpoint-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 10px 12px;
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--ink-3);
+  }
+
+  .endpoint-info .method { color: var(--accent); font-weight: 600; }
+  .endpoint-info .url { color: var(--ink-2); }
+
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Main panel */
+  .main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-2);
+    padding: 0 2rem;
+    gap: 0;
+    background: var(--bg);
+    position: sticky;
+    top: 56px;
+    z-index: 50;
+  }
+
+  .tab {
+    padding: 0 20px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--ink-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 500;
+    user-select: none;
+  }
+
+  .tab:hover { color: var(--ink-2); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+
+  .tab-count {
+    background: var(--surface-2);
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 10px;
+    color: var(--ink-3);
+  }
+
+  .tab.active .tab-count {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  /* Content panels */
+  .panel {
+    display: none;
+    padding: 2rem;
+    animation: fadeUp 0.35s ease;
+    flex: 1;
+  }
+
+  .panel.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-icon {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border-2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .empty-text {
+    font-size: 12px;
+    color: var(--ink-3);
+    text-align: center;
+    line-height: 1.8;
+    letter-spacing: 0.04em;
+  }
+
+  /* Summary panel */
+  .summary-hero {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    border-radius: var(--r-lg);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .summary-hero::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    right: 24px;
+    font-family: var(--serif);
+    font-size: 120px;
+    color: var(--border-2);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .summary-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .summary-label::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--ink-3);
+  }
+
+  .summary-text {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 680px;
+  }
+
+  .summary-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .btn-sm {
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border-2);
+    border-radius: var(--r);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.04em;
+  }
+
+  .btn-sm:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-sm.danger:hover { border-color: var(--accent); color: var(--accent); }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+  }
+
+  .info-card-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Relevance card */
+  .rel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .rel-badge.yes {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid var(--green-border);
+  }
+
+  .rel-badge.no {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--accent-mid);
+  }
+
+  .rel-reason {
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+
+  /* Tags */
+  .tags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    padding: 4px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.12s;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .tag:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .tag.copied { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+
+  /* Roadmap panel */
+  .timeline-header {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  .t-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .t-btn:hover { color: var(--ink-2); border-color: var(--ink-3); }
+  .t-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
+
+  .idea-banner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--r) var(--r) 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .milestones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 20px;
+  }
+
+  .milestone-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+    animation: fadeUp 0.3s ease backwards;
+  }
+
+  .milestone-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    width: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .safety-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+  }
+
+  .safety-block .label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .safety-block .label::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--green);
+  }
+
+  .safety-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-2);
+  }
+
+  /* Actions panel */
+  .actions-warning {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-mid);
+    border-radius: var(--r);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  .actions-warning svg { flex-shrink: 0; }
+
+  .action-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+    animation: fadeUp 0.3s ease backwards;
+  }
+
+  .action-row:hover { border-color: var(--border-2); }
+  .action-row.approved { border-color: var(--green-border); background: var(--green-dim); }
+
+  .action-cb {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--green);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+
+  .action-info { flex: 1; min-width: 0; }
+
+  .action-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .action-cmd {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--ink-3);
+    background: var(--surface-2);
+    padding: 4px 8px;
+    border-radius: var(--r);
+    word-break: break-all;
+    display: inline-block;
+  }
+
+  .btn-exec {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--r);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    text-transform: uppercase;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-exec:hover:not(:disabled) { opacity: 0.88; }
+  .btn-exec:active:not(:disabled) { transform: scale(0.98); }
+  .btn-exec:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .exec-log {
+    margin-top: 14px;
+    background: var(--ink);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2;
+    color: #a8c8a0;
+    display: none;
+  }
+
+  .exec-log .log-line { opacity: 0; animation: logIn 0.2s ease forwards; }
+  @keyframes logIn { to { opacity: 1; } }
+
+  /* Section divider */
+  .section-sep {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark"></div>
+    <span class="logo-text">Project <em>Sentinel</em></span>
+  </div>
+  <span class="topbar-meta">AI REPO INTELLIGENCE SYSTEM</span>
+  <div class="status-pill">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">idle</span>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div>
+      <div class="sidebar-section-label">Repository target</div>
+      <div class="input-block" style="margin-bottom:10px">
+        <div class="field-label">GitHub URL / PDF path</div>
+        <input
+          class="url-input"
+          id="urlInput"
+          type="text"
+          placeholder="https://github.com/owner/repo"
+          value="https://github.com/facebookresearch/segment-anything"
+        />
+      </div>
+      <label class="toggle-row" style="margin-bottom:12px">
+        <input type="checkbox" id="demoMode" checked />
+        Use demo output (no backend needed)
+      </label>
+      <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">
+        <div class="spinner" id="spin"></div>
+        <span id="btnLabel">▶ Analyze &amp; Plan</span>
+      </button>
+    </div>
+
+    <div class="steps" id="steps">
+      <div class="step" id="s1"><div class="step-tick">1</div>Cloning repository</div>
+      <div class="step" id="s2"><div class="step-tick">2</div>Parsing code structure</div>
+      <div class="step" id="s3"><div class="step-tick">3</div>Running AI analysis</div>
+      <div class="step" id="s4"><div class="step-tick">4</div>Generating roadmap</div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div>
+      <div class="sidebar-section-label">Or preview</div>
+      <button class="btn-demo" onclick="loadDemo()">Load demo output →</button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div>
+      <div class="sidebar-section-label">Endpoint</div>
+      <div class="endpoint-info">
+        <span class="method">POST</span> <span class="url">localhost:8000/analyze</span><br/>
+        Content-Type: application/json<br/>
+        Body: { source: string }
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('summary')" id="tab-summary">
+        Summary
+        <span class="tab-count" id="tc-summary">—</span>
+      </div>
+      <div class="tab" onclick="switchTab('roadmap')" id="tab-roadmap">
+        Roadmap
+        <span class="tab-count" id="tc-roadmap">—</span>
+      </div>
+      <div class="tab" onclick="switchTab('actions')" id="tab-actions">
+        Actions
+        <span class="tab-count" id="tc-actions">—</span>
+      </div>
+    </div>
+
+    <!-- Summary Panel -->
+    <div class="panel active" id="panel-summary">
+      <div class="empty-state" id="empty-summary">
+        <div class="empty-icon">◎</div>
+        <div class="empty-text">No analysis yet.<br/>Enter a URL and run Analyze & Plan.</div>
+      </div>
+      <div id="summary-content" style="display:none"></div>
+    </div>
+
+    <!-- Roadmap Panel -->
+    <div class="panel" id="panel-roadmap">
+      <div class="empty-state" id="empty-roadmap">
+        <div class="empty-icon">◎</div>
+        <div class="empty-text">Roadmap will appear here<br/>after analysis completes.</div>
+      </div>
+      <div id="roadmap-content" style="display:none"></div>
+    </div>
+
+    <!-- Actions Panel -->
+    <div class="panel" id="panel-actions">
+      <div class="empty-state" id="empty-actions">
+        <div class="empty-icon">◎</div>
+        <div class="empty-text">Approved actions will appear<br/>after analysis completes.</div>
+      </div>
+      <div id="actions-content" style="display:none"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const DEMO = {
+  analysis: {
+    summary: "Segment Anything Model (SAM) is a promptable segmentation system with zero-shot generalization to unfamiliar objects and images without additional training. It introduces a new task, dataset, and model for image segmentation via a data engine that creates a massive, diverse dataset of 1B+ masks across 11M images. SAM accepts point, box, and free-form text prompts.",
+    relevance_decision: "yes",
+    relevance_reason: "Provides state-of-the-art segmentation optimized for edge deployment and real-time pipelines. Zero-shot capability significantly reduces fine-tuning overhead for new domains.",
+    dependencies: ["pytorch", "torchvision", "opencv-python", "matplotlib", "numpy", "pillow"],
+    key_datasets: ["SA-1B", "COCO", "LVIS", "ADE20K"]
+  },
+  roadmap: {
+    simplified_idea: "Integrate SAM to add real-time segmentation capabilities to our existing computer vision pipeline.",
+    milestones: {
+      "2_weeks": ["Set up environment & load SAM weights", "Test inference on sample images", "Create thin API wrapper around SAM", "Write basic integration demo"],
+      "1_month": ["Optimize for real-time inference (batching, half-precision)", "Build prompt engineering GUI", "Integrate with main codebase + unit tests", "Document usage patterns"],
+      "1_semester": ["Deploy as microservice with health checks", "Fine-tune on custom domain data", "Add active learning annotation loop", "Set up production monitoring & alerting"]
+    },
+    safe_integration_plan: "Use isolated Python virtual environment. Run inside Docker with resource limits. Create dedicated branch 'sentinel-sam'. Add input validation for image size, format, and prompt type. No writes to production DB during testing phase."
+  },
+  actions: [
+    { name: "Clone repository", cmd: "git clone https://github.com/facebookresearch/segment-anything" },
+    { name: "Run demo script", cmd: "python demo.py --checkpoint sam_vit_h.pth" },
+    { name: "Create integration branch", cmd: "git checkout -b sentinel-integration" },
+    { name: "Install dependencies", cmd: "pip install -r requirements.txt" }
+  ]
+};
+
+let currentData = null;
+let currentActions = [];
+let currentTimeline = "2_weeks";
+let activeTab = "summary";
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function esc(s) { return String(s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function setStatus(text, live) {
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('statusDot').className = 'status-dot' + (live ? ' live' : '');
+}
+
+function switchTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+async function runAnalysis() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) {
+    document.getElementById('urlInput').classList.add('error');
+    setTimeout(() => document.getElementById('urlInput').classList.remove('error'), 1500);
+    return;
+  }
+  const demo = document.getElementById('demoMode').checked;
+  setLoading(true);
+  setStatus('scanning...', true);
+
+  const stepsEl = document.getElementById('steps');
+  const sEls = [1,2,3,4].map(i => document.getElementById('s' + i));
+  stepsEl.style.display = 'flex';
+  sEls.forEach(s => { s.className = 'step'; s.querySelector('.step-tick').textContent = s.id.replace('s',''); });
+
+  const delays = [0, 600, 1200, 1900];
+  sEls.forEach((el, i) => {
+    setTimeout(() => {
+      sEls.forEach(s => s.classList.remove('active'));
+      el.classList.add('active');
+      sEls.slice(0, i).forEach(s => { s.classList.remove('active'); s.classList.add('done'); s.querySelector('.step-tick').textContent = '✓'; });
+    }, delays[i]);
+  });
+
+  if (demo) {
+    await sleep(2800);
+    sEls.forEach(s => { s.classList.remove('active'); s.classList.add('done'); s.querySelector('.step-tick').textContent = '✓'; });
+    currentData = DEMO;
+    currentActions = DEMO.actions.map(a => ({ ...a, approved: false }));
+    renderAll();
+  } else {
+    try {
+      const res = await fetch('http://localhost:8000/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: url })
+      });
+      if (!res.ok) throw new Error('Server error ' + res.status);
+      const d = await res.json();
+      currentData = d;
+      currentActions = (d.actions || []).map(a => ({ ...a, approved: false }));
+      await sleep(2000);
+      renderAll();
+    } catch(e) {
+      await sleep(2000);
+      alert('Backend not reachable. Enable "Use demo output" to preview.');
+    }
+  }
+
+  setLoading(false);
+  setStatus('ready', true);
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('analyzeBtn');
+  const spin = document.getElementById('spin');
+  const lbl = document.getElementById('btnLabel');
+  btn.disabled = on;
+  spin.style.display = on ? 'block' : 'none';
+  lbl.textContent = on ? 'Analyzing...' : '▶ Analyze & Plan';
+  if (!on) document.getElementById('steps').style.display = 'none';
+}
+
+function loadDemo() {
+  document.getElementById('urlInput').value = 'https://github.com/facebookresearch/segment-anything';
+  document.getElementById('demoMode').checked = true;
+  runAnalysis();
+}
+
+function renderAll() {
+  renderSummary(currentData.analysis);
+  renderRoadmap(currentData.roadmap, currentTimeline);
+  renderActions();
+  document.getElementById('tc-summary').textContent = currentData.analysis.dependencies.length + currentData.analysis.key_datasets.length;
+  document.getElementById('tc-roadmap').textContent = Object.values(currentData.roadmap.milestones).flat().length;
+  document.getElementById('tc-actions').textContent = currentActions.length;
+  switchTab('summary');
+}
+
+function renderSummary(a) {
+  document.getElementById('empty-summary').style.display = 'none';
+  const el = document.getElementById('summary-content');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="summary-hero">
+      <div class="summary-label">Repository summary</div>
+      <div class="summary-text">${esc(a.summary)}</div>
+      <div class="summary-actions">
+        <button class="btn-sm" id="copySummBtn" onclick="copySummary()">⊕ Copy summary</button>
+        <button class="btn-sm danger" onclick="downloadJSON()">↓ Download JSON</button>
+      </div>
+    </div>
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="info-card-label">Relevance signal</div>
+        <div class="rel-badge ${a.relevance_decision === 'yes' ? 'yes' : 'no'}">
+          ${a.relevance_decision === 'yes' ? '● High relevance' : '✕ Low relevance'}
+        </div>
+        <div class="rel-reason">${esc(a.relevance_reason)}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Dependencies (${a.dependencies.length})</div>
+        <div class="tags-wrap">${a.dependencies.map(d => `<span class="tag" onclick="copyTag(this,'${esc(d)}')">${esc(d)}</span>`).join('')}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Key datasets (${a.key_datasets.length})</div>
+        <div class="tags-wrap">${a.key_datasets.map(d => `<span class="tag" onclick="copyTag(this,'${esc(d)}')">${esc(d)}</span>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function renderRoadmap(r, timeline) {
+  currentTimeline = timeline;
+  document.getElementById('empty-roadmap').style.display = 'none';
+  const el = document.getElementById('roadmap-content');
+  el.style.display = 'block';
+  const tabs = [['2_weeks','2 weeks'],['1_month','1 month'],['1_semester','1 semester']];
+  const ms = r.milestones[timeline] || [];
+  el.innerHTML = `
+    <div class="timeline-header">
+      ${tabs.map(([k, l]) => `<button class="t-btn ${k === timeline ? 'active' : ''}" onclick="renderRoadmap(currentData.roadmap,'${k}')">${l}</button>`).join('')}
+    </div>
+    <div class="idea-banner">${esc(r.simplified_idea)}</div>
+    <div class="milestones-list">
+      ${ms.map((m, i) => `<div class="milestone-item" style="animation-delay:${i * 60}ms"><span class="milestone-num">0${i+1}</span><span>${esc(m)}</span></div>`).join('')}
+    </div>
+    <div class="safety-block">
+      <div class="label">Safe integration plan</div>
+      <div class="safety-text">${esc(r.safe_integration_plan)}</div>
+    </div>`;
+}
+
+function renderActions() {
+  document.getElementById('empty-actions').style.display = 'none';
+  const el = document.getElementById('actions-content');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="actions-warning">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 14h14L8 1zm0 3l4.8 8.3H3.2L8 4zm-.7 3v3h1.4V7H7.3zm0 4v1.3h1.4V11H7.3z"/></svg>
+      Check actions you approve, then click Execute. Changes are irreversible.
+    </div>
+    <div id="action-items">
+      ${currentActions.map((a, i) => `
+        <div class="action-row" id="arow-${i}" style="animation-delay:${i*70}ms">
+          <input type="checkbox" class="action-cb" id="acb-${i}" ${a.approved ? 'checked' : ''} onchange="toggleAction(${i}, this.checked)" />
+          <div class="action-info">
+            <div class="action-name">${esc(a.name)}</div>
+            <code class="action-cmd">${esc(a.cmd)}</code>
+          </div>
+        </div>`).join('')}
+    </div>
+    <button class="btn-exec" id="execBtn" onclick="executeActions()">Execute approved actions</button>
+    <div class="exec-log" id="execLog"></div>`;
+}
+
+function toggleAction(i, checked) {
+  currentActions[i].approved = checked;
+  const row = document.getElementById('arow-' + i);
+  if (checked) row.classList.add('approved');
+  else row.classList.remove('approved');
+}
+
+async function executeActions() {
+  const approved = currentActions.filter(a => a.approved);
+  if (!approved.length) { alert('Check at least one action to approve it.'); return; }
+  const btn = document.getElementById('execBtn');
+  const log = document.getElementById('execLog');
+  btn.disabled = true;
+  log.style.display = 'block';
+  log.innerHTML = '<div class="log-line">> Starting execution...</div>';
+  for (let i = 0; i < approved.length; i++) {
+    await sleep(420);
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    line.style.animationDelay = '0ms';
+    line.textContent = `✓ ${approved[i].name} — done`;
+    log.appendChild(line);
+  }
+  await sleep(300);
+  const done = document.createElement('div');
+  done.className = 'log-line';
+  done.style.animationDelay = '0ms';
+  done.textContent = '> All actions complete. Review changes in your branch.';
+  done.style.color = '#e8c07a';
+  log.appendChild(done);
+  btn.disabled = false;
+}
+
+function copyTag(el, text) {
+  navigator.clipboard && navigator.clipboard.writeText(text).then(() => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1000);
+  });
+}
+
+function copySummary() {
+  if (!currentData) return;
+  navigator.clipboard && navigator.clipboard.writeText(currentData.analysis.summary).then(() => {
+    const btn = document.getElementById('copySummBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '⊕ Copy summary', 1500);
+  });
+}
+
+function downloadJSON() {
+  if (!currentData) return;
+  const b = new Blob([JSON.stringify(currentData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'sentinel_output.json';
+  a.click();
+}
+</script>
+</body>
+</html>
+
