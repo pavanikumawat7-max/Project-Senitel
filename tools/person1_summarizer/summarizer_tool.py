@@ -1,7 +1,5 @@
 # tools/person1_summarizer/summarizer_tool.py
 
-from __future__ import annotations
-
 import os
 import json
 import re
@@ -9,23 +7,6 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# ---------- OpenClaw fallback (allows the decorator even if openclaw is missing) ----------
-try:
-    from openclaw import tool
-except ImportError:
-    def tool(*args, **kwargs):
-        def decorator(fn):
-            return fn
-        return decorator
-
-# If you need approval functions (not needed here, but safe to include)
-try:
-    from openclaw import request_approval
-except ImportError:
-    def request_approval(*args, **kwargs):
-        raise RuntimeError("OpenClaw approval API not available.")
-
 
 # ---------- Text extractors ----------
 def extract_text_from_pdf(pdf_path: str, max_chars: int = 8000) -> str:
@@ -58,23 +39,23 @@ def extract_text_from_github(repo_url: str, max_chars: int = 8000) -> str:
     return resp.text[:max_chars].strip()
 
 
-# ---------- LLM caller ----------
+# ---------- LLM caller (Ollama via OpenAI client) ----------
 def call_llm(text: str) -> dict:
     from openai import OpenAI
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise EnvironmentError("OPENAI_API_KEY not set. Add it to your .env file.")
-
-    client = OpenAI(api_key=api_key)
-    model = "gpt-4o-mini"
+    # Connect to local Ollama server (no API key needed)
+    client = OpenAI(
+        base_url="http://localhost:11434/v1",
+        api_key="ollama",  # required by client but ignored by Ollama
+    )
+    model = "llama3.2"   # you can also use "llama3.1", "mistral", etc.
 
     system_prompt = (
         "You are an assistant that reads academic paper or GitHub repo content. "
         "Output a JSON object with exactly these keys: "
         "summary (3 sentences), relevance_decision ('yes' or 'no'), "
         "relevance_reason (string), dependencies (list of strings), key_datasets (list of strings). "
-        "No extra text."
+        "No extra text, no markdown formatting."
     )
     user_prompt = (
         f"Content:\n{text}\n\n"
@@ -89,10 +70,18 @@ def call_llm(text: str) -> dict:
             {"role": "user", "content": user_prompt}
         ],
         temperature=0.1,
-        response_format={"type": "json_object"}
+        # Ollama ignores response_format, but we handle parsing below
     )
     raw = response.choices[0].message.content.strip()
 
+    # Strip possible markdown fences (```json ... ```)
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1]
+        if raw.endswith("```"):
+            raw = raw[:-3]
+        raw = raw.strip()
+
+    # Parse JSON robustly
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
@@ -102,6 +91,7 @@ def call_llm(text: str) -> dict:
         else:
             raise ValueError("Could not parse LLM output as JSON")
 
+    # Ensure required keys exist
     for key in ["summary", "relevance_decision", "relevance_reason", "dependencies", "key_datasets"]:
         if key not in data:
             if key in ["dependencies", "key_datasets"]:
@@ -113,8 +103,7 @@ def call_llm(text: str) -> dict:
     return data
 
 
-# ---------- Main tool (decorated with @tool) ----------
-@tool
+# ---------- Plain function (no decorator, returns dict) ----------
 def analyze_research_input(source: str) -> dict:
     """
     Analyze a research paper PDF or GitHub repo.
