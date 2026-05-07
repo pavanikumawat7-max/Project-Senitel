@@ -157,3 +157,34 @@ def insert_code_snippet(
         return "cancelled: code insertion not approved"
     except Exception as e:
         return f"error inserting code: {e}"
+
+def suggest_actions(source_url: str) -> list[dict]:
+    """Suggest actions based on the source repository URL."""
+    actions = []
+    
+    # Heuristic for GitHub URL
+    if "github.com" in source_url.lower():
+        repo_name = source_url.rstrip('/').split('/')[-1]
+        if repo_name.endswith('.git'):
+            repo_name = repo_name[:-4]
+            
+        actions.append({
+            "name": "Clone repository",
+            "cmd": f"git clone {source_url}"
+        })
+        actions.append({
+            "name": "Create integration branch",
+            "cmd": f"cd {repo_name} && git checkout -b sentinel-integration"
+        })
+        actions.append({
+            "name": "Install dependencies",
+            "cmd": f"cd {repo_name} && pip install -r requirements.txt"
+        })
+    else:
+        # Default actions if not a recognizable GitHub URL
+        actions.append({
+            "name": "Create integration branch",
+            "cmd": "git checkout -b sentinel-integration"
+        })
+
+    return actions

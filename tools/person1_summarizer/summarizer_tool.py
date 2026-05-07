@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ---------- Text extractors ----------
-def extract_text_from_pdf(pdf_path: str, max_chars: int = 8000) -> str:
+def extract_text_from_pdf(pdf_path: str, max_chars: int = 2000) -> str:
     from pypdf import PdfReader
     reader = PdfReader(pdf_path)
     text = ""
@@ -22,7 +22,7 @@ def extract_text_from_pdf(pdf_path: str, max_chars: int = 8000) -> str:
     return text[:max_chars].strip()
 
 
-def extract_text_from_github(repo_url: str, max_chars: int = 8000) -> str:
+def extract_text_from_github(repo_url: str, max_chars: int = 2000) -> str:
     url = repo_url.strip().rstrip("/")
     path = url.replace("https://github.com/", "", 1)
     parts = path.split("/")
@@ -87,9 +87,12 @@ def call_llm(text: str) -> dict:
     except json.JSONDecodeError:
         match = re.search(r'\{.*\}', raw, re.DOTALL)
         if match:
-            data = json.loads(match.group())
+            try:
+                data = json.loads(match.group())
+            except json.JSONDecodeError:
+                data = {}
         else:
-            raise ValueError("Could not parse LLM output as JSON")
+            data = {}
 
     # Ensure required keys exist
     for key in ["summary", "relevance_decision", "relevance_reason", "dependencies", "key_datasets"]:
