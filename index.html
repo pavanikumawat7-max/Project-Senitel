@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Project Sentinel – Day Checklist Roadmap</title>
+<title>Project Sentinel – AI Repo Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&display=swap" rel="stylesheet" />
@@ -637,6 +637,26 @@
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+
+  /* GitHub panel styles */
+  .github-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .github-stats .info-card {
+    flex: 1;
+    text-align: center;
+  }
+  .github-stats .info-card .info-card-label {
+    text-align: center;
+  }
+  .loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: var(--cyan);
+  }
 </style>
 </head>
 <body>
@@ -689,6 +709,18 @@
 
     <div class="sidebar-divider"></div>
 
+    <!-- GitHub Activity input (Person 3) -->
+    <div>
+      <div class="sidebar-section-label">GitHub Activity</div>
+      <div class="input-block" style="margin-bottom:8px">
+        <div class="field-label">GitHub Username</div>
+        <input class="url-input" id="githubUsername" type="text" placeholder="e.g., Anuradha05-Tech" value="pavanikumawat7-max" />
+      </div>
+      <button class="btn-demo" style="width:100%" onclick="loadGitHubActivity()">⏎ LOAD GitHub Activity</button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
     <div>
       <div class="sidebar-section-label">Endpoint</div>
       <div class="endpoint-info">
@@ -709,6 +741,10 @@
       </div>
       <div class="tab" onclick="switchTab('actions')" id="tab-actions">
         Actions <span class="tab-count" id="tc-actions">—</span>
+      </div>
+      <!-- NEW GitHub tab -->
+      <div class="tab" onclick="switchTab('github')" id="tab-github">
+        GitHub <span class="tab-count" id="tc-github">—</span>
       </div>
     </div>
 
@@ -735,6 +771,15 @@
       </div>
       <div id="actions-content" style="display:none"></div>
     </div>
+
+    <!-- GitHub panel -->
+    <div class="panel" id="panel-github">
+      <div class="empty-state" id="empty-github">
+        <div class="empty-icon">◎</div>
+        <div class="empty-text">Enter a GitHub username and load activity.</div>
+      </div>
+      <div id="github-content" style="display:none"></div>
+    </div>
   </main>
 </div>
 
@@ -749,7 +794,6 @@ const DEMO = {
     key_datasets: ["SA-1B", "COCO", "LVIS", "ADE20K"]
   },
   roadmap: {
-    // day-based checklist structure
     days: [
       { name: "Day 1", tasks: ["Set up development environment (Python 3.10, venv)", "Clone SAM repository & download ViT-H checkpoint", "Run minimal inference test on sample image"] },
       { name: "Day 2", tasks: ["Wrap SAM inference into a simple REST API (FastAPI)", "Add image input validation & error handling", "Write unit tests for the API endpoint"] },
@@ -770,7 +814,7 @@ const DEMO = {
 let currentData = null;
 let currentActions = [];
 let activeTab = "summary";
-let checklistState = {};  // stores { "dayIndex_taskIndex": true/false }
+let checklistState = {};
 
 // --- persistence helpers ---
 const STORAGE_KEY = "sentinel_roadmap_checks";
@@ -837,10 +881,7 @@ async function runAnalysis() {
       const res = await fetch('http://localhost:8000/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source: url }) });
       if (!res.ok) throw new Error('Server error ' + res.status);
       const d = await res.json();
-      // convert backend milestones to days if needed, but for demo we rely on DEMO structure.
-      // If backend returns days, use it; otherwise fallback to a conversion.
       if (!d.roadmap || !d.roadmap.days) {
-        // fallback: create generic days from milestones or empty
         d.roadmap = d.roadmap || {};
         d.roadmap.days = [
           { name: "Day 1", tasks: ["Review repository structure", "Set up environment"] },
@@ -927,7 +968,6 @@ function renderRoadmapChecklist(roadmap) {
   let totalTasks = 0;
   let completedTasks = 0;
   
-  // calculate global progress
   days.forEach((day, dIdx) => {
     day.tasks.forEach((_, tIdx) => {
       totalTasks++;
@@ -1013,7 +1053,6 @@ function toggleTask(dayIdx, taskIdx, checked) {
     delete checklistState[key];
   }
   saveChecklistState();
-  // re-render to update progress bars
   if (currentData && currentData.roadmap && currentData.roadmap.days) {
     renderRoadmapChecklist(currentData.roadmap);
   }
@@ -1110,6 +1149,101 @@ function escapeHtml(str) {
   }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
     return c;
   });
+}
+
+// ==================== GITHUB ACTIVITY (Person 3) ====================
+async function loadGitHubActivity() {
+  const username = document.getElementById('githubUsername').value.trim();
+  if (!username) {
+    alert('Please enter a GitHub username');
+    return;
+  }
+  document.getElementById('tc-github').textContent = '⏳';
+  setStatus('loading GitHub...', true);
+
+  const container = document.getElementById('github-content');
+  const emptyDiv = document.getElementById('empty-github');
+  emptyDiv.style.display = 'none';
+  container.style.display = 'block';
+  container.innerHTML = '<div class="loading-spinner">⏳ Fetching events...</div>';
+
+  try {
+    const res = await fetch(`https://api.github.com/users/${username}/events/public?per_page=30`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} – user not found or rate limited`);
+    const events = await res.json();
+
+    if (!events.length) {
+      container.innerHTML = '<div class="empty-text">No public events found for this user.</div>';
+      document.getElementById('tc-github').textContent = '0';
+      setStatus('ready', true);
+      return;
+    }
+
+    // Compute stats
+    const pushEvents = events.filter(e => e.type === 'PushEvent');
+    const totalCommits = pushEvents.reduce((sum, e) => sum + (e.payload.commits?.length || 0), 0);
+    const uniqueRepos = new Set(events.map(e => e.repo.name)).size;
+    const latest = new Date(events[0].created_at).toLocaleString();
+
+    let eventsHtml = `
+      <div class="github-stats">
+        <div class="info-card"><div class="info-card-label">Commits (30d)</div><div style="font-size:24px; font-weight:600">${totalCommits}</div></div>
+        <div class="info-card"><div class="info-card-label">Repositories</div><div style="font-size:24px; font-weight:600">${uniqueRepos}</div></div>
+        <div class="info-card"><div class="info-card-label">Latest activity</div><div style="font-size:11px">${latest}</div></div>
+      </div>
+      <div class="events-list" style="display: flex; flex-direction: column; gap: 12px;">
+    `;
+
+    events.forEach(ev => {
+      let icon = '📦';
+      let detail = '';
+      switch (ev.type) {
+        case 'PushEvent':
+          icon = '📤';
+          const commitCount = ev.payload.commits?.length || 0;
+          detail = `${commitCount} commit${commitCount !== 1 ? 's' : ''} to ${ev.repo.name}`;
+          break;
+        case 'ForkEvent':
+          icon = '🔱';
+          detail = `Forked ${ev.repo.name}`;
+          break;
+        case 'WatchEvent':
+          icon = '⭐';
+          detail = `Starred ${ev.repo.name}`;
+          break;
+        case 'CreateEvent':
+          icon = '🆕';
+          detail = `Created ${ev.payload.ref_type} ${ev.payload.ref || ''} in ${ev.repo.name}`;
+          break;
+        case 'IssuesEvent':
+          icon = '🐛';
+          detail = `${ev.payload.action} issue in ${ev.repo.name}`;
+          break;
+        default:
+          detail = ev.type.replace('Event', '') + ' on ' + ev.repo.name;
+      }
+      const date = new Date(ev.created_at).toLocaleString();
+      eventsHtml += `
+        <div class="action-row" style="animation-delay:0ms">
+          <div style="font-size:20px">${icon}</div>
+          <div class="action-info">
+            <div class="action-name">${ev.type}</div>
+            <div class="action-cmd">${detail}</div>
+            <div style="font-size:10px; color:var(--ink-3); margin-top:4px">${date}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    eventsHtml += `</div>`;
+    container.innerHTML = eventsHtml;
+    document.getElementById('tc-github').textContent = events.length;
+    setStatus('ready', true);
+  } catch (err) {
+    container.innerHTML = `<div class="empty-text">❌ Error: ${err.message}</div>`;
+    document.getElementById('tc-github').textContent = '!';
+    setStatus('error', false);
+  }
 }
 
 // initialize

@@ -48,7 +48,7 @@ def call_llm(text: str) -> dict:
         base_url="http://localhost:11434/v1",
         api_key="ollama",  # required by client but ignored by Ollama
     )
-    model = "llama3.2"   # you can also use "llama3.1", "mistral", etc.
+    model = "phi3"   # you can also use "llama3.1", "mistral", etc.
 
     system_prompt = (
         "You are an assistant that reads academic paper or GitHub repo content. "
@@ -59,8 +59,8 @@ def call_llm(text: str) -> dict:
     )
     user_prompt = (
         f"Content:\n{text}\n\n"
-        f"Analyze its relevance for a project that does real-time speech enhancement on edge devices. "
-        f"Provide the JSON."
+        f"Analyze this project. Decide if it is technically sound and useful for general AI/ML development. "
+        f"Provide the JSON as specified."
     )
 
     response = client.chat.completions.create(

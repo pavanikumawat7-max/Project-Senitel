@@ -7,7 +7,7 @@ def call_llm_roadmap(analysis_data: dict) -> dict:
         base_url="http://localhost:11434/v1",
         api_key="ollama",  # required by client but ignored by Ollama
     )
-    model = "llama3.2"
+    model = "phi3"
 
     system_prompt = (
         "You are an expert technical project manager and software architect. "
