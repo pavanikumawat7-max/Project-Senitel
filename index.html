@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Project Sentinel</title>
+<title>Project Sentinel – Day Checklist Roadmap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&display=swap" rel="stylesheet" />
@@ -273,7 +272,7 @@
     backdrop-filter: blur(8px);
     position: sticky;
     top: 56px;
-    z-index: 50;
+    z-index: 5;
   }
 
   .tab {
@@ -307,7 +306,13 @@
 
   .tab.active .tab-count { background: var(--accent-glow); color: var(--accent-2); border: 1px solid var(--accent-mid); }
 
-  .panel { display: none; padding: 2rem; animation: fadeUp 0.35s ease; flex: 1; }
+  .panel { 
+    display: none; 
+    padding: 2rem; 
+    padding-top: 80px;
+    animation: fadeUp 0.35s ease; 
+    flex: 1;  
+  }
   .panel.active { display: block; }
 
   @keyframes fadeUp {
@@ -444,84 +449,113 @@
   .tag:hover { border-color: var(--accent); color: var(--accent-2); background: var(--accent-glow); }
   .tag.copied { border-color: var(--green); color: var(--green); background: var(--green-dim); }
 
-  .timeline-header { display: flex; gap: 4px; margin-bottom: 20px; }
-
-  .t-btn {
-    padding: 6px 16px;
-    border-radius: 20px;
+  /* Roadmap day checklist styles */
+  .day-section {
     background: var(--surface);
     border: 1px solid var(--border-2);
+    border-radius: var(--r-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: var(--surface-2);
+    transition: background 0.15s;
+  }
+  .day-header:hover { background: var(--surface-3); }
+  .day-title { font-weight: 600; font-size: 16px; letter-spacing: -0.2px; display: flex; align-items: center; gap: 12px; }
+  .day-progress {
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--accent-2);
+    background: var(--accent-glow);
+    padding: 2px 8px;
+    border-radius: 40px;
+  }
+  .day-progress-bar-bg {
+    width: 120px;
+    height: 4px;
+    background: var(--border-2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .day-progress-bar-fill {
+    height: 100%;
+    background: var(--green);
+    width: 0%;
+    transition: width 0.2s;
+  }
+  .tasks-list {
+    padding: 8px 20px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 4px 0;
+  }
+  .task-check {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--green);
+    cursor: pointer;
+  }
+  .task-text {
+    color: var(--ink-2);
+    transition: color 0.15s;
+  }
+  .task-check:checked + .task-text {
+    text-decoration: line-through;
+    color: var(--ink-3);
+  }
+  .roadmap-global-progress {
+    background: var(--surface-2);
+    border-radius: var(--r-lg);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border-2);
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .global-bar {
+    height: 8px;
+    background: var(--border-2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .global-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--cyan));
+    width: 0%;
+    transition: width 0.25s;
+  }
+  .btn-reset {
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid var(--border-2);
+    border-radius: var(--r);
+    padding: 8px;
     font-family: var(--mono);
     font-size: 11px;
     color: var(--ink-3);
     cursor: pointer;
     transition: all 0.15s;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
   }
-
-  .t-btn:hover { color: var(--accent-2); border-color: var(--accent); }
-  .t-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 14px rgba(124,107,255,0.4); }
-
-  .idea-banner {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--cyan);
-    border-radius: 0 var(--r) var(--r) 0;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: var(--ink-2);
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-
-  .milestones-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
-
-  .milestone-item {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 12px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    font-size: 13px;
-    color: var(--ink);
-    line-height: 1.5;
-    animation: fadeUp 0.3s ease backwards;
-    transition: border-color 0.15s, background 0.15s;
-  }
-
-  .milestone-item:hover { border-color: var(--border-2); background: var(--surface-2); }
-
-  .milestone-num {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--accent-2);
-    letter-spacing: 0.06em;
-    width: 20px; flex-shrink: 0; margin-top: 2px;
-  }
-
-  .safety-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 16px 18px;
-  }
-
-  .safety-block .label {
-    font-size: 10px; letter-spacing: 0.1em; color: var(--green);
-    text-transform: uppercase; margin-bottom: 8px;
-    display: flex; align-items: center; gap: 7px;
-  }
-
-  .safety-block .label::before {
-    content: '';
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    border: 1.5px solid var(--green);
-    box-shadow: 0 0 6px var(--green);
-  }
-
-  .safety-text { font-size: 13px; line-height: 1.7; color: var(--ink-2); }
+  .btn-reset:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
 
   .actions-warning {
     background: rgba(255,200,0,0.06);
@@ -534,8 +568,6 @@
     display: flex; align-items: center; gap: 8px;
     letter-spacing: 0.03em;
   }
-
-  .actions-warning svg { flex-shrink: 0; }
 
   .action-row {
     display: flex; align-items: flex-start; gap: 12px;
@@ -707,6 +739,7 @@
 </div>
 
 <script>
+// ---------- DEMO DATA WITH DAY-BASED ROADMAP ----------
 const DEMO = {
   analysis: {
     summary: "Segment Anything Model (SAM) is a promptable segmentation system with zero-shot generalization to unfamiliar objects and images without additional training. It introduces a new task, dataset, and model for image segmentation via a data engine that creates a massive, diverse dataset of 1B+ masks across 11M images. SAM accepts point, box, and free-form text prompts.",
@@ -716,12 +749,14 @@ const DEMO = {
     key_datasets: ["SA-1B", "COCO", "LVIS", "ADE20K"]
   },
   roadmap: {
-    simplified_idea: "Integrate SAM to add real-time segmentation capabilities to our existing computer vision pipeline.",
-    milestones: {
-      "2_weeks": ["Set up environment & load SAM weights", "Test inference on sample images", "Create thin API wrapper around SAM", "Write basic integration demo"],
-      "1_month": ["Optimize for real-time inference (batching, half-precision)", "Build prompt engineering GUI", "Integrate with main codebase + unit tests", "Document usage patterns"],
-      "1_semester": ["Deploy as microservice with health checks", "Fine-tune on custom domain data", "Add active learning annotation loop", "Set up production monitoring & alerting"]
-    },
+    // day-based checklist structure
+    days: [
+      { name: "Day 1", tasks: ["Set up development environment (Python 3.10, venv)", "Clone SAM repository & download ViT-H checkpoint", "Run minimal inference test on sample image"] },
+      { name: "Day 2", tasks: ["Wrap SAM inference into a simple REST API (FastAPI)", "Add image input validation & error handling", "Write unit tests for the API endpoint"] },
+      { name: "Day 3", tasks: ["Integrate SAM with existing CV pipeline (demo branch)", "Optimize inference: GPU batching & half-precision", "Create prompt engineering UI prototype"] },
+      { name: "Day 4", tasks: ["Implement active learning loop (store failed cases)", "Add performance monitoring (latency, memory)", "Dockerize the whole service"] },
+      { name: "Day 5", tasks: ["Deploy to staging environment", "Write integration documentation & demo video", "Prepare final hackathon presentation"] }
+    ],
     safe_integration_plan: "Use isolated Python virtual environment. Run inside Docker with resource limits. Create dedicated branch 'sentinel-sam'. Add input validation for image size, format, and prompt type. No writes to production DB during testing phase."
   },
   actions: [
@@ -732,10 +767,35 @@ const DEMO = {
   ]
 };
 
-let currentData = null, currentActions = [], currentTimeline = "2_weeks", activeTab = "summary";
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const esc = s => String(s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let currentData = null;
+let currentActions = [];
+let activeTab = "summary";
+let checklistState = {};  // stores { "dayIndex_taskIndex": true/false }
 
+// --- persistence helpers ---
+const STORAGE_KEY = "sentinel_roadmap_checks";
+function loadChecklistState() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      checklistState = JSON.parse(saved);
+    } catch(e) { checklistState = {}; }
+  } else {
+    checklistState = {};
+  }
+}
+function saveChecklistState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(checklistState));
+}
+function resetChecklistState() {
+  checklistState = {};
+  saveChecklistState();
+  if (currentData && currentData.roadmap && currentData.roadmap.days) {
+    renderRoadmapChecklist(currentData.roadmap);
+  }
+}
+
+// --- UI utilities ---
 function setStatus(text, live) {
   document.getElementById('statusText').textContent = text;
   document.getElementById('statusDot').className = 'status-dot' + (live ? ' live' : '');
@@ -777,8 +837,21 @@ async function runAnalysis() {
       const res = await fetch('http://localhost:8000/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source: url }) });
       if (!res.ok) throw new Error('Server error ' + res.status);
       const d = await res.json();
-      currentData = d; currentActions = (d.actions || []).map(a => ({ ...a, approved: false }));
-      await sleep(2000); renderAll();
+      // convert backend milestones to days if needed, but for demo we rely on DEMO structure.
+      // If backend returns days, use it; otherwise fallback to a conversion.
+      if (!d.roadmap || !d.roadmap.days) {
+        // fallback: create generic days from milestones or empty
+        d.roadmap = d.roadmap || {};
+        d.roadmap.days = [
+          { name: "Day 1", tasks: ["Review repository structure", "Set up environment"] },
+          { name: "Day 2", tasks: ["Run initial tests", "Identify integration points"] },
+          { name: "Day 3", tasks: ["Implement core feature", "Write documentation"] }
+        ];
+      }
+      currentData = d;
+      currentActions = (d.actions || []).map(a => ({ ...a, approved: false }));
+      await sleep(2000);
+      renderAll();
     } catch(e) {
       await sleep(2000);
       alert('Backend not reachable. Enable "Use demo output" to preview.');
@@ -800,12 +873,15 @@ function loadDemo() {
   runAnalysis();
 }
 
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
 function renderAll() {
   renderSummary(currentData.analysis);
-  renderRoadmap(currentData.roadmap, currentTimeline);
+  renderRoadmapChecklist(currentData.roadmap);
   renderActions();
   document.getElementById('tc-summary').textContent = currentData.analysis.dependencies.length + currentData.analysis.key_datasets.length;
-  document.getElementById('tc-roadmap').textContent = Object.values(currentData.roadmap.milestones).flat().length;
+  const totalTasks = currentData.roadmap.days.reduce((acc, d) => acc + d.tasks.length, 0);
+  document.getElementById('tc-roadmap').textContent = totalTasks;
   document.getElementById('tc-actions').textContent = currentActions.length;
   switchTab('summary');
 }
@@ -817,7 +893,7 @@ function renderSummary(a) {
   el.innerHTML = `
     <div class="summary-hero">
       <div class="summary-label">Repository summary</div>
-      <div class="summary-text">${esc(a.summary)}</div>
+      <div class="summary-text">${escapeHtml(a.summary)}</div>
       <div class="summary-actions">
         <button class="btn-sm" id="copySummBtn" onclick="copySummary()">⊕ Copy summary</button>
         <button class="btn-sm danger" onclick="downloadJSON()">↓ Download JSON</button>
@@ -829,38 +905,118 @@ function renderSummary(a) {
         <div class="rel-badge ${a.relevance_decision === 'yes' ? 'yes' : 'no'}">
           ${a.relevance_decision === 'yes' ? '● High relevance' : '✕ Low relevance'}
         </div>
-        <div class="rel-reason">${esc(a.relevance_reason)}</div>
+        <div class="rel-reason">${escapeHtml(a.relevance_reason)}</div>
       </div>
       <div class="info-card">
         <div class="info-card-label">Dependencies (${a.dependencies.length})</div>
-        <div class="tags-wrap">${a.dependencies.map(d => `<span class="tag" onclick="copyTag(this,'${esc(d)}')">${esc(d)}</span>`).join('')}</div>
+        <div class="tags-wrap">${a.dependencies.map(d => `<span class="tag" onclick="copyTag(this,'${escapeHtml(d)}')">${escapeHtml(d)}</span>`).join('')}</div>
       </div>
       <div class="info-card">
         <div class="info-card-label">Key datasets (${a.key_datasets.length})</div>
-        <div class="tags-wrap">${a.key_datasets.map(d => `<span class="tag" onclick="copyTag(this,'${esc(d)}')">${esc(d)}</span>`).join('')}</div>
+        <div class="tags-wrap">${a.key_datasets.map(d => `<span class="tag" onclick="copyTag(this,'${escapeHtml(d)}')">${escapeHtml(d)}</span>`).join('')}</div>
       </div>
     </div>`;
 }
 
-function renderRoadmap(r, timeline) {
-  currentTimeline = timeline;
+function renderRoadmapChecklist(roadmap) {
   document.getElementById('empty-roadmap').style.display = 'none';
-  const el = document.getElementById('roadmap-content');
-  el.style.display = 'block';
-  const tabs = [['2_weeks','2 weeks'],['1_month','1 month'],['1_semester','1 semester']];
-  const ms = r.milestones[timeline] || [];
-  el.innerHTML = `
-    <div class="timeline-header">
-      ${tabs.map(([k, l]) => `<button class="t-btn ${k === timeline ? 'active' : ''}" onclick="renderRoadmap(currentData.roadmap,'${k}')">${l}</button>`).join('')}
+  const container = document.getElementById('roadmap-content');
+  container.style.display = 'block';
+  
+  const days = roadmap.days;
+  let totalTasks = 0;
+  let completedTasks = 0;
+  
+  // calculate global progress
+  days.forEach((day, dIdx) => {
+    day.tasks.forEach((_, tIdx) => {
+      totalTasks++;
+      const key = `${dIdx}_${tIdx}`;
+      if (checklistState[key]) completedTasks++;
+    });
+  });
+  const globalPercent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+  
+  let html = `
+    <div class="roadmap-global-progress">
+      <div class="progress-header">
+        <span>📊 Overall progress</span>
+        <span>${completedTasks}/${totalTasks} tasks</span>
+      </div>
+      <div class="global-bar">
+        <div class="global-fill" style="width: ${globalPercent}%;"></div>
+      </div>
+      <button class="btn-reset" onclick="resetChecklistState()">⟳ Reset all progress</button>
     </div>
-    <div class="idea-banner">${esc(r.simplified_idea)}</div>
-    <div class="milestones-list">
-      ${ms.map((m, i) => `<div class="milestone-item" style="animation-delay:${i * 60}ms"><span class="milestone-num">0${i+1}</span><span>${esc(m)}</span></div>`).join('')}
-    </div>
-    <div class="safety-block">
-      <div class="label">Safe integration plan</div>
-      <div class="safety-text">${esc(r.safe_integration_plan)}</div>
+  `;
+  
+  days.forEach((day, dIdx) => {
+    let dayCompleted = 0;
+    day.tasks.forEach((_, tIdx) => {
+      const key = `${dIdx}_${tIdx}`;
+      if (checklistState[key]) dayCompleted++;
+    });
+    const dayPercent = day.tasks.length === 0 ? 0 : Math.round((dayCompleted / day.tasks.length) * 100);
+    
+    html += `
+      <div class="day-section" data-day="${dIdx}">
+        <div class="day-header" onclick="toggleDay(${dIdx})">
+          <div class="day-title">
+            <span>📅 ${escapeHtml(day.name)}</span>
+            <span class="day-progress">${dayCompleted}/${day.tasks.length}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="day-progress-bar-bg">
+              <div class="day-progress-bar-fill" style="width: ${dayPercent}%;"></div>
+            </div>
+            <span style="font-size: 12px;">▼</span>
+          </div>
+        </div>
+        <div class="tasks-list" id="tasks-${dIdx}" style="display: block;">
+    `;
+    
+    day.tasks.forEach((task, tIdx) => {
+      const key = `${dIdx}_${tIdx}`;
+      const isChecked = checklistState[key] || false;
+      html += `
+        <div class="task-item">
+          <input type="checkbox" class="task-check" data-day="${dIdx}" data-task="${tIdx}" ${isChecked ? 'checked' : ''} onchange="toggleTask(${dIdx}, ${tIdx}, this.checked)">
+          <span class="task-text">${escapeHtml(task)}</span>
+        </div>
+      `;
+    });
+    
+    html += `</div></div>`;
+  });
+  
+  html += `<div class="safety-block" style="margin-top: 20px;">
+      <div class="label">🛡 Safe integration plan</div>
+      <div class="safety-text">${escapeHtml(roadmap.safe_integration_plan)}</div>
     </div>`;
+  
+  container.innerHTML = html;
+}
+
+function toggleDay(dayIdx) {
+  const tasksDiv = document.getElementById(`tasks-${dayIdx}`);
+  if (tasksDiv) {
+    const isVisible = tasksDiv.style.display !== 'none';
+    tasksDiv.style.display = isVisible ? 'none' : 'block';
+  }
+}
+
+function toggleTask(dayIdx, taskIdx, checked) {
+  const key = `${dayIdx}_${taskIdx}`;
+  if (checked) {
+    checklistState[key] = true;
+  } else {
+    delete checklistState[key];
+  }
+  saveChecklistState();
+  // re-render to update progress bars
+  if (currentData && currentData.roadmap && currentData.roadmap.days) {
+    renderRoadmapChecklist(currentData.roadmap);
+  }
 }
 
 function renderActions() {
@@ -877,8 +1033,8 @@ function renderActions() {
         <div class="action-row" id="arow-${i}" style="animation-delay:${i*70}ms">
           <input type="checkbox" class="action-cb" id="acb-${i}" ${a.approved ? 'checked' : ''} onchange="toggleAction(${i}, this.checked)" />
           <div class="action-info">
-            <div class="action-name">${esc(a.name)}</div>
-            <code class="action-cmd">${esc(a.cmd)}</code>
+            <div class="action-name">${escapeHtml(a.name)}</div>
+            <code class="action-cmd">${escapeHtml(a.cmd)}</code>
           </div>
         </div>`).join('')}
     </div>
@@ -889,7 +1045,7 @@ function renderActions() {
 function toggleAction(i, checked) {
   currentActions[i].approved = checked;
   const row = document.getElementById('arow-' + i);
-  checked ? row.classList.add('approved') : row.classList.remove('approved');
+  if (row) checked ? row.classList.add('approved') : row.classList.remove('approved');
 }
 
 async function executeActions() {
@@ -906,36 +1062,58 @@ async function executeActions() {
     log.appendChild(line);
   }
   await sleep(300);
-  const done = document.createElement('div');
-  done.className = 'log-line'; done.style.animationDelay = '0ms';
-  done.textContent = '> All actions complete. Review changes in your branch.';
-  done.style.color = '#a78bfa';
-  log.appendChild(done);
+  const doneLine = document.createElement('div');
+  doneLine.className = 'log-line';
+  doneLine.textContent = '> All actions complete. Review changes in your branch.';
+  doneLine.style.color = '#a78bfa';
+  log.appendChild(doneLine);
   btn.disabled = false;
 }
 
 function copyTag(el, text) {
-  navigator.clipboard && navigator.clipboard.writeText(text).then(() => {
-    el.classList.add('copied');
-    setTimeout(() => el.classList.remove('copied'), 1000);
-  });
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      el.classList.add('copied');
+      setTimeout(() => el.classList.remove('copied'), 1000);
+    });
+  }
 }
 
 function copySummary() {
   if (!currentData) return;
-  navigator.clipboard && navigator.clipboard.writeText(currentData.analysis.summary).then(() => {
-    const btn = document.getElementById('copySummBtn');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = '⊕ Copy summary', 1500);
-  });
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(currentData.analysis.summary).then(() => {
+      const btn = document.getElementById('copySummBtn');
+      if (btn) {
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => btn.textContent = '⊕ Copy summary', 1500);
+      }
+    });
+  }
 }
 
 function downloadJSON() {
   if (!currentData) return;
-  const b = new Blob([JSON.stringify(currentData, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+  const blob = new Blob([JSON.stringify(currentData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'sentinel_output.json'; a.click();
+  URL.revokeObjectURL(a.href);
 }
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+    return c;
+  });
+}
+
+// initialize
+loadChecklistState();
 </script>
 </body>
 </html>
