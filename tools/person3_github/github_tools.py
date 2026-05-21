@@ -161,9 +161,10 @@ def insert_code_snippet(
 def suggest_actions(source_url: str) -> list[dict]:
     """Suggest actions based on the source repository URL."""
     actions = []
-    
+    source_lower = source_url.lower() if source_url else ""
+
     # Heuristic for GitHub URL
-    if "github.com" in source_url.lower():
+    if "github.com" in source_lower:
         repo_name = source_url.rstrip('/').split('/')[-1]
         if repo_name.endswith('.git'):
             repo_name = repo_name[:-4]
@@ -180,6 +181,9 @@ def suggest_actions(source_url: str) -> list[dict]:
             "name": "Install dependencies",
             "cmd": f"cd {repo_name} && pip install -r requirements.txt"
         })
+    elif source_lower.endswith('.pdf') or source_lower.startswith(('file:', '/', '\\')):
+        # No repo actions for uploaded/local PDFs
+        return []
     else:
         # Default actions if not a recognizable GitHub URL
         actions.append({
